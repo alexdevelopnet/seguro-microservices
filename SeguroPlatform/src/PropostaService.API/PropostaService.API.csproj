@@ -17,4 +17,8 @@
     <ProjectReference Include="..\PropostaService.Infrastructure\PropostaService.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>
