@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: seguro-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: TMKTtmkt123
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - seguro-network
+
+  # PropostaService
+  proposta-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: publish
+    container_name: seguro-proposta-service
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - PROPOSTA_DB=Host=postgres;Port=5432;Database=propostadb;Username=postgres;Password=TMKTtmkt123
+    depends_on:
+      - postgres
+    networks:
+      - seguro-network
+    command: dotnet PropostaService.API.dll --urls "http://0.0.0.0:5000"
+
+  # ContratacaoService
+  contratacao-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: publish
+    container_name: seguro-contratacao-service
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - CONTRATACAO_DB=Host=postgres;Port=5432;Database=contratacaodb;Username=postgres;Password=TMKTtmkt123
+    depends_on:
+      - postgres
+      - proposta-service
+    networks:
+      - seguro-network
+    command: dotnet ContratacaoService.API.dll --urls "http://0.0.0.0:5001"
+
+volumes:
+  postgres_data:
+
+networks:
+  seguro-network:
+    driver: bridge

@@ -1,43 +1,43 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using PropostaService.Application.Services;
+using PropostaService.Application.Ports;
+using PropostaService.Infrastructure.Persistence;
+using PropostaService.Infrastructure.Repositories;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adiciona serviÁos
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer(); // Necess·rio para Swagger
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(o =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Proposta Service API",
-        Version = "v1",
-        Description = "API para gerenciamento de propostas",
-        Contact = new OpenApiContact
-        {
-            Name = "Time de Desenvolvimento",
-            Email = "dev@empresa.com"
-        }
-    });
+    o.SwaggerDoc("v1", new OpenApiInfo { Title = "PropostaService API", Version = "v1" });
 });
 
- builder.Services.AddOpenApi();
+var connStr = Environment.GetEnvironmentVariable("PROPOSTA_DB")
+              ?? builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<PropostaDbContext>(opt => opt.UseNpgsql(connStr));
+builder.Services.AddScoped<IPropostaServicePort, PropostaAppService>();
+builder.Services.AddScoped<IPropostaRepositoryPort, PropostaRepository>();
 
 var app = builder.Build();
- 
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Proposta Service API v1");
-        c.RoutePrefix = string.Empty; 
-    });
-     
-    app.MapOpenApi();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PropostaService API v1"));
+}
+
+// aplica migrations automaticamente
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PropostaDbContext>();
+    db.Database.Migrate();
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+// Configurar porta espec√≠fica
+app.Run("http://localhost:5000");

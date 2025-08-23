@@ -8,11 +8,16 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.3" />
 	</ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ContratacaoService.Infrastructure\ContratacaoService.Infrastructure.csproj" />
     <ProjectReference Include="..\PropostaService.Application\PropostaService.Application.csproj" />
     <ProjectReference Include="..\PropostaService.Infrastructure\PropostaService.Infrastructure.csproj" />
   </ItemGroup>
