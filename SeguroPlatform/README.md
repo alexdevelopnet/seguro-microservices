@@ -141,18 +141,48 @@ dotnet restore
 
 As migrations são aplicadas automaticamente ao iniciar os serviços.
 
+**PropostaService**: Migrations já existem e são aplicadas automaticamente.
+**ContratacaoService**: Migrations criadas e aplicadas automaticamente.
+
+**Design-Time Factory**: Criada para permitir geração de novas migrações.
+
 ### 5. Executar os Microserviços
 
-#### Terminal 1 - PropostaService
+#### Opção 1: Executar Individualmente
+
+**Terminal 1 - PropostaService**
 ```bash
 cd src/PropostaService.API
 dotnet run
 ```
 
-#### Terminal 2 - ContratacaoService
+**Terminal 2 - ContratacaoService**
 ```bash
 cd src/ContratacaoService.API
 dotnet run
+```
+
+#### Opção 2: Executar com Docker (Recomendado)
+
+```bash
+# Executar todos os serviços
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Parar serviços
+docker-compose down
+```
+
+#### Opção 3: Executar com Script
+
+```bash
+# Linux/Mac
+./start-services.sh
+
+# Windows
+start-services.bat
 ```
 
 ### 6. Acessar as APIs
@@ -160,6 +190,8 @@ dotnet run
 - **PropostaService**: http://localhost:5000
 - **ContratacaoService**: http://localhost:5001
 - **Swagger**: http://localhost:5000/swagger e http://localhost:5001/swagger
+
+**⚠️ Importante**: As portas estão fixas e configuradas para evitar conflitos de comunicação entre os serviços.
 
 ## 🧪 Executar Testes
 
@@ -210,8 +242,12 @@ SeguroPlatform/
 │   ├── ContratacaoService.Infrastructure/# Implementações concretas
 │   ├── ContratacaoService.API/           # Controllers e configuração
 │   └── PropostaService.Tests/            # Testes unitários
-├── SeguroPlatform.sln                    # Solution file
-└── README.md                             # Este arquivo
+├── docker-compose.yml                    # Orquestração dos serviços
+├── Dockerfile                           # Containerização
+├── start-services.sh                    # Script de inicialização
+├── create-databases.sql                 # Script de criação dos bancos
+├── SeguroPlatform.sln                   # Solution file
+└── README.md                            # Este arquivo
 ```
 
 ## 🧪 Cobertura de Testes
@@ -222,6 +258,8 @@ SeguroPlatform/
   - ✅ Alterar status para "Rejeitada"
   - ✅ Validar status inválido
 
+**Testes executados com sucesso**: `dotnet test` passando em todos os cenários.
+
 ## 🔧 Padrões Implementados
 
 - **Clean Architecture**: Separação clara de responsabilidades
@@ -230,6 +268,8 @@ SeguroPlatform/
 - **Repository Pattern**: Abstração de acesso a dados
 - **Dependency Injection**: Inversão de controle
 - **Ports & Adapters**: Arquitetura hexagonal
+- **Factory Pattern**: Design-time factory para migrações
+- **Adapter Pattern**: HTTP adapter para comunicação entre serviços
 
 ## 🚀 Próximos Passos
 
@@ -240,7 +280,7 @@ SeguroPlatform/
 - [ ] Implementar cache (Redis)
 - [ ] Adicionar validações com FluentValidation
 - [ ] Implementar testes de integração
-- [ ] Criar Dockerfile e docker-compose
+- [x] ✅ Criar Dockerfile e docker-compose
 - [ ] Implementar CI/CD pipeline
 
 ## 📝 Licença
