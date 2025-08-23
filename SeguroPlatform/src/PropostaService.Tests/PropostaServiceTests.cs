@@ -1,5 +1,6 @@
 using PropostaService.Application.Services;
 using PropostaService.Domain.Entities;
+using PropostaService.Domain.ValueObjects;
 
 namespace PropostaService.Tests;
 

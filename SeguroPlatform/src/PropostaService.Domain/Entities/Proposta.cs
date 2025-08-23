@@ -1,11 +1,6 @@
-namespace PropostaService.Domain.Entities;
+using PropostaService.Domain.ValueObjects;
 
-public enum StatusProposta
-{
-    EmAnalise,
-    Aprovada,
-    Rejeitada
-}
+namespace PropostaService.Domain.Entities;
 
 public class Proposta
 {
