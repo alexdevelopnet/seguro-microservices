@@ -16,7 +16,10 @@ namespace ContratacaoService.Infrastructure.Adapters
         public PropostaServiceHttpAdapter(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _propostaServiceUrl = configuration["PropostaService:BaseUrl"] ?? "http://localhost:5000";
+            // Priorizar variável de ambiente do Docker, depois configuração local
+            _propostaServiceUrl = Environment.GetEnvironmentVariable("PropostaServiceUrl") 
+                ?? configuration["PropostaService:BaseUrl"] 
+                ?? "http://localhost:5000";
         }
 
         public async Task<PropostaDto?> ObterPropostaPorIdAsync(Guid propostaId)

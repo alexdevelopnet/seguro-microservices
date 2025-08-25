@@ -13,48 +13,69 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql
     networks:
       - seguro-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # PropostaService
   proposta-service:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: publish
+      dockerfile: Dockerfile.proposta
     container_name: seguro-proposta-service
     ports:
       - "5000:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - PROPOSTA_DB=Host=postgres;Port=5432;Database=propostadb;Username=postgres;Password=TMKTtmkt123
+      - ASPNETCORE_URLS=http://0.0.0.0:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=propostadb;Username=postgres;Password=TMKTtmkt123
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - seguro-network
-    command: dotnet PropostaService.API.dll --urls "http://0.0.0.0:5000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # ContratacaoService
   contratacao-service:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: publish
+      dockerfile: Dockerfile.contratacao
     container_name: seguro-contratacao-service
     ports:
       - "5001:5001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - CONTRATACAO_DB=Host=postgres;Port=5432;Database=contratacaodb;Username=postgres;Password=TMKTtmkt123
+      - ASPNETCORE_URLS=http://0.0.0.0:5001
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=contratacaodb;Username=postgres;Password=TMKTtmkt123
+      - PropostaServiceUrl=http://proposta-service:5000
     depends_on:
-      - postgres
-      - proposta-service
+      postgres:
+        condition: service_healthy
+      proposta-service:
+        condition: service_healthy
     networks:
       - seguro-network
-    command: dotnet ContratacaoService.API.dll --urls "http://0.0.0.0:5001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5001/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 volumes:
   postgres_data:
+
 
 networks:
   seguro-network:

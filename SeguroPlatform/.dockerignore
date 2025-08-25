@@ -1,0 +1,53 @@
+# Arquivos de build e desenvolvimento
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+
+# Arquivos de configuração local
+appsettings.Development.json
+appsettings.Local.json
+
+# Arquivos de teste
+**/Tests/
+**/*.Tests/
+**/*.Tests.csproj
+
+# Arquivos de IDE
+.vs/
+.vscode/
+*.sln.docstates
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Scripts
+*.bat
+*.sh
+start-services.*
+
+# Documentação
+README.md
+*.md
+
+# Outros
+node_modules/
+npm-debug.log*

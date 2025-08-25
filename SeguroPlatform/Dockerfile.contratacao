@@ -1,0 +1,40 @@
+# Multi-stage build para otimizar o tamanho da imagem
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+WORKDIR /app
+EXPOSE 5001
+
+# Instalar curl para health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copiar arquivos de projeto
+COPY ["src/ContratacaoService.API/ContratacaoService.API.csproj", "src/ContratacaoService.API/"]
+COPY ["src/ContratacaoService.Application/ContratacaoService.Application.csproj", "src/ContratacaoService.Application/"]
+COPY ["src/ContratacaoService.Domain/ContratacaoService.Domain.csproj", "src/ContratacaoService.Domain/"]
+COPY ["src/ContratacaoService.Infrastructure/ContratacaoService.Infrastructure.csproj", "src/ContratacaoService.Infrastructure/"]
+
+# Restaurar dependências
+RUN dotnet restore "src/ContratacaoService.API/ContratacaoService.API.csproj"
+
+# Copiar código fonte
+COPY . .
+
+# Build da aplicação
+RUN dotnet build "src/ContratacaoService.API/ContratacaoService.API.csproj" -c Release -o /app/build
+
+# Publish stage
+FROM build AS publish
+RUN dotnet publish "src/ContratacaoService.API/ContratacaoService.API.csproj" -c Release -o /app/publish
+
+# Runtime stage
+FROM base AS final
+WORKDIR /app
+
+# Copiar aplicação publicada
+COPY --from=publish /app/publish .
+
+# Comando para executar o serviço
+ENTRYPOINT ["dotnet", "ContratacaoService.API.dll"]

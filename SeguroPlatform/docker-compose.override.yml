@@ -1,0 +1,41 @@
+# Configurações específicas para desenvolvimento
+# Este arquivo sobrescreve configurações do docker-compose.yml principal
+
+version: '3.8'
+
+services:
+  # Configurações de desenvolvimento para PropostaService
+  proposta-service:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:5000
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft=Warning
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Information
+    volumes:
+      - ./src:/src:ro # Volume para hot reload (opcional)
+    restart: unless-stopped
+
+  # Configurações de desenvolvimento para ContratacaoService
+  contratacao-service:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:5001
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft=Warning
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Information
+    volumes:
+      - ./src:/src:ro # Volume para hot reload (opcional)
+    restart: unless-stopped
+
+  # Configurações de desenvolvimento para PostgreSQL
+  postgres:
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=TMKTtmkt123
+      - POSTGRES_DB=postgres
+      - POSTGRES_MULTIPLE_DATABASES=propostadb,contratacaodb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql
+    restart: unless-stopped

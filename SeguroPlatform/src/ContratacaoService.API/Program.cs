@@ -26,8 +26,10 @@ builder.Services.AddScoped<IContratacaoRepositoryPort, ContratacaoRepository>();
 builder.Services.AddScoped<IContratacaoServicePort, ContratacaoAppService>();
 
 // Configurar DbContext para PostgreSQL
+var connStr = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+              ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ContratacaoDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connStr));
 
 var app = builder.Build();
 
@@ -49,9 +51,14 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-app.UseHttpsRedirection();
+// Remover HTTPS redirection para desenvolvimento
+// app.UseHttpsRedirection();
+
 app.UseAuthorization();
 app.MapControllers();
 
-// Configurar porta específica
-app.Run("http://localhost:5001");
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "ContratacaoService" }));
+
+// Forçar binding para 0.0.0.0 para funcionar no Docker
+app.Run("http://0.0.0.0:5001");
